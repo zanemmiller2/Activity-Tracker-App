@@ -1,7 +1,7 @@
 from FilteredUploadClass import FilterDataUpload
 
 if __name__ == '__main__':
-    unfiltered_csv = '/Users/zanemiller/Desktop/Activity-Tracker-App/apple_health_export/' \
+    unfiltered_csv = '/Users/zanemiller/Desktop/Activity-Tracker-App-Data/apple_health_export/' \
                      'Extracted_data/Workout.csv'
     filtered_csv = '/Users/zanemiller/Desktop/Activity-Tracker-App/apple_health_export/' \
                    'Filtered_Data/Workout_Filtered.csv'
