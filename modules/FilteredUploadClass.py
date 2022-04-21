@@ -153,7 +153,7 @@ class FilterDataUpload():
             print("Resting HR not set up yet")
             pass
 
-        # TODO error checking for created new table
+        # TODO error checking for created new table gg
 
     def commit_changes(self):
         """ Commit changes to database """
