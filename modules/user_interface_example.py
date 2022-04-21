@@ -1,9 +1,9 @@
 from FilteredUploadClass import FilterDataUpload
 
 if __name__ == '__main__':
-    unfiltered_csv = '/Users/zanemiller/Desktop/Activity Tracker App/apple_health_export/' \
+    unfiltered_csv = '/Users/zanemiller/Desktop/Activity-Tracker-App/apple_health_export/' \
                      'Extracted_data/Workout.csv'
-    filtered_csv = '/Users/zanemiller/Desktop/Activity Tracker App/apple_health_export/' \
+    filtered_csv = '/Users/zanemiller/Desktop/Activity-Tracker-App/apple_health_export/' \
                    'Filtered_Data/Workout_Filtered.csv'
 
     data_tables_types_sources = {
