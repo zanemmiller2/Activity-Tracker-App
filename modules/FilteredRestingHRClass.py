@@ -7,11 +7,11 @@ Description: Defines a class for Filtering Apple Health Data and Uploading to da
 """
 import csv
 import sys
-import MySQLdb as mysql
+
 import mariadb
 
 
-class FilterDataUpload():
+class FilterDataUpload:
     """
     FilteredDataUpload class can filter sources out of csv, connect to a MySQL database, get row
     data from CSV, upload a csv to MySQL database, create a new table in a MySQL database, commit
@@ -19,7 +19,6 @@ class FilterDataUpload():
     TODO
         1) function to create new MySQL database
         2) Function to create new user
-        3) Functions for more extracted data types
         4) New class for database management??
         5) Web interface
         6) Data Analytics - New Class
@@ -31,7 +30,7 @@ class FilterDataUpload():
         self.filtered_csv = filtered_csv
         self.data_type = data_type
 
-        self.default_workout_import_sources = ['Zane’s Apple\xa0Watch', 'Stryd', 'Slopes', 'ELEMNT']
+        self.default_import_sources = ['Zane’s Apple\xa0Watch']
 
         # Cursor initializer
         self.cursor = None
@@ -40,30 +39,33 @@ class FilterDataUpload():
         self.table_name = None
 
     def database_connect(self, **kwargs):
-        # Connect to MariaDB - fitnessTracker
+        """ Connect to MariaDB - fitnessTracker """
+
         try:
-            self.connection = mysql.connect(
+            self.connection = mariadb.connect(
                 user=kwargs['user'],
                 password=kwargs['password'],
                 host=kwargs['host'],
                 port=kwargs['port'],
-                database=kwargs['database'],
+                database=kwargs['database'], )
 
-            )
+            print(f"Connection to {kwargs['database']} success ... ")
+
         except mariadb.Error as e:
             print(f"Error connecting to Mariadb Platform: {e}")
             sys.exit(1)
 
         self.cursor = self.connection.cursor()
 
-    def filter_watch_workout_data(self, import_source=None):
+    def filter_watch_data(self, import_source=None):
         """
-        Filters only workout data from Apple Watch from Workout.csv and writes to Workout_Filtered.csv
+        Filters only workout data from Apple Watch from RestingHeartRate.csv
+        and writes to RestingHR_Filtered.csv
         :return: None
         """
 
         if not import_source:
-            import_source = self.default_workout_import_sources
+            import_source = self.default_import_sources
 
         with open(self.unfiltered_csv, 'r') as rf:
             csv_reader = csv.reader(rf, delimiter=",")
@@ -85,7 +87,8 @@ class FilterDataUpload():
 
     def upload_csv(self):
         """
-        Function writes Workout_Filtered.csv to workoutDataAppleWatch table in fitnessTracker MariaDB
+        Function writes Workout_Filtered.csv to workoutDataAppleWatch table in
+        fitnessTracker MariaDB
         """
         # Get row data
         rows = self.get_row_data()
@@ -102,58 +105,40 @@ class FilterDataUpload():
                     f"sourceName, " \
                     f"sourceVersion, " \
                     f"device, " \
+                    f"type, " \
+                    f"unit, " \
                     f"creationDate, " \
                     f"startDate, " \
                     f"endDate, " \
-                    f"workoutActivityType, " \
-                    f"duration, " \
-                    f"durationUnit, " \
-                    f"totalDistance, " \
-                    f"totalDistanceUnit, " \
-                    f"totalEnergyBurned, " \
-                    f"totalEnergyBurnedUnit) " \
+                    f"resting_hr) " \
                     f"VALUES ('{row[0]}', '{row[1]}', '{row[2]}', '{row[3]}', '{row[4]}', '{row[5]}', " \
-                    f"'{row[6]}','{row[7]}', '{row[8]}', '{row[9]}', '{row[10]}', '{row[11]}', " \
-                    f"'{row[12]}')"
+                    f"'{row[6]}','{row[7]}', '{row[8]}')"
 
             self.cursor.execute(query)
 
     def create_new_table(self, table_name):
-        """ Create new workoutDataAppleWatch table if one does not already exist """
+        """
+        Create new workoutDataAppleWatch table if one does not already exist
+        """
+
         self.table_name = table_name
         print(f"Creating new {self.data_type} table")
 
         # create workout table
-        if self.data_type == 'workout':
+        if self.data_type == 'resting heart rate':
             query = f"CREATE TABLE IF NOT EXISTS {self.table_name}(" \
                     f"id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, " \
                     f"sourceName varchar(255), " \
                     f"sourceVersion varchar(255), " \
                     f"device varchar(255), " \
+                    f"type varchar(255), " \
+                    f"unit varchar(255), " \
                     f"creationDate varchar(255), " \
                     f"startDate varchar(255), " \
                     f"endDate varchar(255), " \
-                    f"workoutActivityType varchar(255), " \
-                    f"duration varchar(255), " \
-                    f"durationUnit varchar(255), " \
-                    f"totalDistance varchar(255), " \
-                    f"totalDistanceUnit varchar(255), " \
-                    f"totalEnergyBurned varchar(255), " \
-                    f"totalEnergyBurnedUnit varchar(255))"
+                    f"resting_hr int)"
 
             self.cursor.execute(query)
-
-        elif self.data_type == 'sleep':
-            # TODO
-            print("Sleep not set up yet")
-            pass
-
-        elif self.data_type == 'resting_hr':
-            # TODO
-            print("Resting HR not set up yet")
-            pass
-
-        # TODO error checking for created new table gg
 
     def commit_changes(self):
         """ Commit changes to database """
@@ -162,3 +147,63 @@ class FilterDataUpload():
     def close_connection(self):
         """ Close connection to database """
         self.connection.close()
+
+    def heart_rate_averages_one_week(self):
+        """
+        Gets heart rate average for specified range (last week, last month,
+        last 6 months, last year).
+        """
+        query = f"SELECT AVG(resting_hr) AS average from restinghr_table " \
+                f"WHERE endDate >= date_sub(NOW(), " \
+                f"INTERVAL 1 WEEK)"
+
+        self.cursor.execute(query)
+
+        rows = self.cursor.fetchall()
+
+        return rows[0][0]
+
+    def heart_rate_averages_one_month(self):
+        """
+        Gets heart rate average for specified range (last week, last month,
+        last 6 months, last year).
+        """
+        query = f"SELECT AVG(resting_hr) AS average from restinghr_table " \
+                f"WHERE endDate >= date_sub(NOW(), " \
+                f"INTERVAL 1 MONTH)"
+
+        self.cursor.execute(query)
+
+        rows = self.cursor.fetchall()
+
+        return rows[0][0]
+
+    def heart_rate_averages_six_month(self):
+        """
+        Gets heart rate average for specified range (last week, last month,
+        last 6 months, last year).
+        """
+        query = f"SELECT AVG(resting_hr) AS average from restinghr_table " \
+                f"WHERE endDate >= date_sub(NOW(), " \
+                f"INTERVAL 6 MONTH)"
+
+        self.cursor.execute(query)
+
+        rows = self.cursor.fetchall()
+
+        return rows[0][0]
+
+    def heart_rate_averages_one_year(self):
+        """
+        Gets heart rate average for specified range (last week, last month,
+        last 6 months, last year).
+        """
+        query = f"SELECT AVG(resting_hr) AS average from restinghr_table " \
+                f"WHERE endDate >= date_sub(NOW(), " \
+                f"INTERVAL 1 YEAR)"
+
+        self.cursor.execute(query)
+
+        rows = self.cursor.fetchall()
+
+        return rows[0][0]

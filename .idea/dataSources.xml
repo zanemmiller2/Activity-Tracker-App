@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="fitnessDataBase" uuid="d4242bee-d89c-4a29-b9af-c1f524b35492">
+    <data-source source="LOCAL" name="fitnessTracker" uuid="d4242bee-d89c-4a29-b9af-c1f524b35492">
       <driver-ref>mariadb</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.mariadb.jdbc.Driver</jdbc-driver>

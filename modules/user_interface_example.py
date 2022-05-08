@@ -1,4 +1,4 @@
-from FilteredUploadClass import FilterDataUpload
+from FilteredWorkoutClass import FilterWorkoutDataUpload
 
 if __name__ == '__main__':
     # --------------------------------------------------------------------------------------------#
@@ -6,9 +6,18 @@ if __name__ == '__main__':
     # --------------------------------------------------------------------------------------------#
 
     # Select source and destination files for upload
-    unfiltered_csv = '/Users/zanemiller/Desktop/Activity-Tracker-App-Data/apple_health_export/' \
+    workout_unfiltered_csv = '/Users/zanemiller/Desktop/361_SWE/Activity-Tracker-App-Data/apple_health_export/' \
                      'Extracted_data/Workout.csv'
-    filtered_csv = '/Users/zanemiller/Desktop/Activity-Tracker-App/Workout_Filtered.csv'
+    workout_filtered_csv = '/Users/zanemiller/Desktop/361_SWE/Activity-Tracker-App/Workout_Filtered.csv'
+
+    sleep_unfiltered_csv = '/Users/zanemiller/Desktop/361_SWE/Activity-Tracker-App-Data/apple_health_export/' \
+                             'Extracted_data/SleepAnalysis.csv'
+    sleep_filtered_csv = '/Users/zanemiller/Desktop/361_SWE/Activity-Tracker-App/Sleep_Filtered.csv'
+
+    restinghr_unfiltered_csv = '/Users/zanemiller/Desktop/361_SWE/Activity-Tracker-App-Data/apple_health_export/' \
+                             'Extracted_data/RestingHeartRate.csv'
+    restinghr_filtered_csv = '/Users/zanemiller/Desktop/361_SWE/Activity-Tracker-App/RestingHR_Filtered.csv'
+
 
     # What sources do you want to include in your upload?
     data_tables_types_sources = {
@@ -24,10 +33,21 @@ if __name__ == '__main__':
     # --------------------------------------------------------------------------------------------#
 
     # upload data to a specific table TODO ('sleep', 'resting_hr' - functions)
-    workout_upload = FilterDataUpload(unfiltered_csv, filtered_csv, upload_data_type)
+    workout_upload = FilterWorkoutDataUpload(workout_unfiltered_csv,
+                                             workout_filtered_csv,
+                                             upload_data_type)
+
+    sleep_upload = FilterWorkoutDataUpload(sleep_unfiltered_csv,
+                                           sleep_filtered_csv,
+                                           upload_data_type)
+
+    restinghr_upload = FilterWorkoutDataUpload(restinghr_unfiltered_csv,
+                                               restinghr_filtered_csv,
+                                               upload_data_type)
 
     # filters out unwanted import sources from watch workout data ** optional param
     workout_upload.filter_watch_workout_data(data_tables_types_sources[upload_data_type])
+    sleep_upload.filter_watch_workout_data()
 
     login_config = ["zanemiller",
                     "230Leafwoodct!",
@@ -43,6 +63,8 @@ if __name__ == '__main__':
 
     # creates new table if one does not already exist
     workout_upload.create_new_table('workout_table')
+    workout_upload.create_new_table('sleep')
+    workout_upload.create_new_table('resting_hr')
 
     # Uploads CSV
     workout_upload.upload_csv()
